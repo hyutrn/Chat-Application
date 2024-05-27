@@ -18,6 +18,7 @@
 struct Account {
     std::string username;
     std::string password;
+    int id;
 };
 
 void CreateAccount(const std::string& username, const std::string& password);
