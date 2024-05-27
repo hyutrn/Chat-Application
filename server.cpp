@@ -6,13 +6,14 @@ std::vector<SOCKET> clients;
 std::unordered_map<std::string, bool> loggedInAccounts;
 std::mutex clientsMutex;
 std::mutex accountsMutex;
+int currentID = 1; // Biến toàn cục để theo dõi ID hiện tại
 
 // Hàm tạo account khi nhận được key = 0 từ chuỗi tin nhắn
 void CreateAccount(const std::string& username, const std::string& password) {
-    // Thêm username, password vào vector accounts
-    accounts.push_back({username, password});
-    std::cout << "Account created: " << username << std::endl;
-
+    // Tạo account mới với id
+    Account newAccount = {username, password, currentID++};
+    accounts.push_back(newAccount);
+    std::cout << "Account created: " << username << " with ID: " << newAccount.id << std::endl;
 }
 
 bool CheckAccount(const std::string& username, const std::string& password) {
