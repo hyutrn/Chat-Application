@@ -42,7 +42,7 @@ void BroadcastMessage(const std::string& message, SOCKET senderSocket, const std
     std::cout << fullMessage << std::endl;
     for (SOCKET client : clients) { 
         if (client != senderSocket) {                               //Gửi cho các user khác
-            send(client, message.c_str(), message.length(), 0);
+            send(client, fullMessage.c_str(), fullMessage.length(), 0);
         }
     }
 }
@@ -181,7 +181,7 @@ int StartServer() {
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = inet_addr(IP_SERVER);
-    serverAddr.sin_port = htons(PORT);
+    serverAddr.sin_port = htons(PORT_SERVER);
 
     if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
         std::cout << "Bind failed" << std::endl;
@@ -197,7 +197,7 @@ int StartServer() {
         return 1;
     }
 
-    std::cout << "Server is listening on port " << PORT << "..." << std::endl;
+    std::cout << "Server is listening on port " << PORT_SERVER << "..." << std::endl;
 
     while (true) {
         SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
