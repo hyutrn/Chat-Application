@@ -23,7 +23,7 @@ struct Account {
 
 void CreateAccount(const std::string& username, const std::string& password);
 bool CheckAccount(const std::string& username, const std::string& password);
-void BroadcastMessage(const std::string& message, SOCKET senderSocket);
+void BroadcastMessage(const std::string& message, SOCKET senderSocket, const std::string& username);
 void HandleClient(SOCKET clientSocket);
 int StartServer();
 
