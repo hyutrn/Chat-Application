@@ -3,10 +3,11 @@
 
 std::vector<Account> accounts;
 std::vector<SOCKET> clients;
-std::unordered_map<std::string, bool> loggedInAccounts;
+std::unordered_map<std::string, bool> loggedInAccounts;                 // Dùng để quản lý login logout của account
 std::mutex clientsMutex;
 std::mutex accountsMutex;
-int currentID = 1; // Biến toàn cục để theo dõi ID hiện tại
+std::mutex loginMutex;                                                  // Mutex mới để quản lý trạng thái đăng nhập
+int currentID = 1;                                                      // Biến toàn cục để theo dõi ID hiện tại
 
 // Hàm tạo account khi nhận được key = 0 từ chuỗi tin nhắn
 void CreateAccount(const std::string& username, const std::string& password) {
@@ -16,6 +17,7 @@ void CreateAccount(const std::string& username, const std::string& password) {
     std::cout << "Account created: " << username << " with ID: " << newAccount.id << std::endl;
 }
 
+// Hàm kiểm tra tài khoản có trong server ?
 bool CheckAccount(const std::string& username, const std::string& password) {
     std::lock_guard<std::mutex> lock(accountsMutex);
     for (const auto& account : accounts) {
@@ -26,20 +28,26 @@ bool CheckAccount(const std::string& username, const std::string& password) {
     return false;
 }
 
+// Hàm logout accout
 void LogoutAccount(const std::string& username) {
     std::lock_guard<std::mutex> lock(accountsMutex);
     loggedInAccounts[username] = false;
 }
 
-void BroadcastMessage(const std::string& message, SOCKET senderSocket) {
+// Hàm gửi tin nhắn tới các user khác trong room chat
+void BroadcastMessage(const std::string& message, SOCKET senderSocket, const std::string& username) {
     std::lock_guard<std::mutex> lock(clientsMutex);
-    for (SOCKET client : clients) {
-        if (client != senderSocket) {
+    std::string senderName = username;                              // Lấy tên người gửi
+    std::string fullMessage = senderName + ": " + message;          // Tạo tin nhắn đầy đủ
+    std::cout << fullMessage << std::endl;
+    for (SOCKET client : clients) { 
+        if (client != senderSocket) {                               //Gửi cho các user khác
             send(client, message.c_str(), message.length(), 0);
         }
     }
 }
 
+// Hàm handle cho client 
 void HandleClient(SOCKET clientSocket) {
     char buffer[1024] = {0};
     int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
@@ -49,6 +57,7 @@ void HandleClient(SOCKET clientSocket) {
         return;
     }
 
+    // Kiểm tra chuỗi message, tách chuỗi thành username, password, key để xử lý
     std::string message(buffer, recvSize);
     size_t pos1 = message.find(',');
     size_t pos2 = message.rfind(',');
@@ -63,10 +72,13 @@ void HandleClient(SOCKET clientSocket) {
     std::string password = message.substr(pos1 + 1, pos2 - pos1 - 1);
     int key = std::stoi(message.substr(pos2 + 1));
 
+    // Với key = 0, gọi hàm tạo account và lưu account mới vào server
     if (key == 0) {
         CreateAccount(username, password);
         // Tạo account thành công, gửi mã 200 về client
         send(clientSocket, "200", 3, 0);
+
+        //Kiểm tra đăng nhập sau khi tạo tài khoản
         while(recv(clientSocket, buffer, sizeof(buffer), 0)){
             std::string message(buffer, recvSize);
             size_t pos1 = message.find(',');
@@ -79,8 +91,10 @@ void HandleClient(SOCKET clientSocket) {
             std::string username = message.substr(0, pos1);
             std::string password = message.substr(pos1 + 1, pos2 - pos1 - 1);
 
+            std::lock_guard<std::mutex> lock(loginMutex); // Sử dụng mutex để bảo vệ truy cập vào loggedInAccounts
             // Kiểm tra account có trong hệ thống và không được đăng nhập, gửi mã 201 về client
-            if (CheckAccount(username, password)) {
+            if (CheckAccount(username, password) && !loggedInAccounts[username]) {
+                loggedInAccounts[username] = true;
                 std::cout << "Account login: " << username << std::endl;
                 send(clientSocket, "201", 3, 0);
                 break;
@@ -91,9 +105,11 @@ void HandleClient(SOCKET clientSocket) {
                 return;
             }
         }
-    } else if (key == 1) {
+    } else if (key == 1) {                              // Với key = 1, tiến hành đăng nhập account, kiểm tra account có tồn tại ?
+        std::lock_guard<std::mutex> lock(loginMutex); // Sử dụng mutex để bảo vệ truy cập vào loggedInAccounts
         // Kiểm tra account có trong hệ thống và không được đăng nhập, gửi mã 201 về client
-        if (CheckAccount(username, password)) {
+        if (CheckAccount(username, password) && !loggedInAccounts[username]) {
+            loggedInAccounts[username] = true;
             std::cout << "Account login: " << username << std::endl;
             send(clientSocket, "201", 3, 0);
         } else {
@@ -103,7 +119,7 @@ void HandleClient(SOCKET clientSocket) {
             return;
         }
     } else {
-        std::cout << "Invalid key value" << std::endl;
+        std::cout << "Invalid key value" << std::endl;      // Các trường hợp còn lại log lỗi ra màn hình
         closesocket(clientSocket);
         return;
     }
@@ -113,15 +129,17 @@ void HandleClient(SOCKET clientSocket) {
         clients.push_back(clientSocket);
     }
 
+    // Xử lý phần gửi nhận tin nhắn
     while (true) {
         recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
         if (recvSize > 0) {
             std::string clientMessage(buffer, recvSize);
+            //Với câu lệnh "./exit", tức client sẽ ngắt kết nối với server
             if (clientMessage == "./exit") {
                 std::cout << "Account disconnected: " << username << std::endl;
                 break;
             } else {
-                BroadcastMessage(clientMessage, clientSocket);
+                BroadcastMessage(clientMessage, clientSocket, username); //gọi hàm gửi tin nhắn cho các client khác
             }
         } else {
             // Lock the mutex before erasing from clients vector
@@ -145,9 +163,10 @@ void HandleClient(SOCKET clientSocket) {
     }
 
     LogoutAccount(username); // Đánh dấu tài khoản là đã đăng xuất
-    closesocket(clientSocket);
+    closesocket(clientSocket); 
 }
 
+// Hàm khởi động Servere
 int StartServer() {
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -161,9 +180,8 @@ int StartServer() {
 
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
-    // serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_addr.s_addr = inet_addr(IP_SERVER);
-    serverAddr.sin_port = htons(8080);
+    serverAddr.sin_port = htons(PORT);
 
     if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
         std::cout << "Bind failed" << std::endl;
@@ -179,7 +197,7 @@ int StartServer() {
         return 1;
     }
 
-    std::cout << "Server is listening on port 8080..." << std::endl;
+    std::cout << "Server is listening on port " << PORT << "..." << std::endl;
 
     while (true) {
         SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
@@ -199,6 +217,7 @@ int StartServer() {
     return 0;
 }
 
+// Hàm main
 int main() {
     return StartServer();
 }
