@@ -3,6 +3,13 @@
 struct client client;
 int endLine = 4;
 
+// Hàm kiểm tra tính hợp lệ của mật khẩu
+bool isPasswordValid(const std::string& password) {
+    // Sử dụng regex để kiểm tra mật khẩu
+    std::regex pattern("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}");
+    return std::regex_match(password, pattern);
+}
+
 void GENERATE_LOGIN(){
     setColor(7);
 	hideCursor(false);
@@ -37,7 +44,7 @@ void GENERATE_LOGIN(){
 		std::getline(std::cin>>std::ws, client.username);
 		gotoXY(left + 16, top + 6);
 		std::getline(std::cin>>std::ws, client.password);
-        std::string message = client.username + "," + client.password + ",1";
+        std::string message ="Flag login," + client.username + "," + client.password + ",1";
         
         send(clientSocket, message.c_str(), message.length(), 0);
         char buffer[1024] = {0};
@@ -53,51 +60,61 @@ void GENERATE_LOGIN(){
 
 void GENERATE_SIGNUP(){
     system("cls");
-	hideCursor(false);
-	std::string newPassword = "/";
-	std::string username;
-	std::string warnLabel = "Welcome user !";
-	std::string continueNoti = "Press 'r' to continue...";
-	int width = 45;
-	int height = 9;
-	int top = 7;
-	int left = centerWindow(width);
-	while (client.password != newPassword) {
-		std::string chatLabel = "CHAT APPLICATION";
-		std::string loginLabel = "SIGN UP";
+    hideCursor(false);
+    std::string newPassword;
+    std::string username;
+    std::string warnLabel = "Welcome user !";
+    std::string continueNoti = "Press 'r' to continue...";
+    int width = 45;
+    int height = 9;
+    int top = 7;
+    int left = centerWindow(width);
+    
+    bool validPassword = false; // Biến để kiểm tra tính hợp lệ của mật khẩu
 
-		system("cls");
-		gotoXY(centerWindow(warnLabel.length()), top + 9);
-		std::cout << warnLabel;
-		drawRectangle(left, top, width, height);
+    while (!validPassword) {
+        std::string chatLabel = "CHAT APPLICATION";
+        std::string loginLabel = "SIGN UP";
 
-		gotoXY(centerWindow(chatLabel.length()), 3);
-		std::cout << chatLabel;
-		gotoXY(centerWindow(loginLabel.length()), 5);
-		std::cout << loginLabel;
+        system("cls");
+        gotoXY(centerWindow(warnLabel.length()), top + 9);
+        std::cout << warnLabel;
+        drawRectangle(left, top, width, height);
 
-		gotoXY(left + 5, top + 2);
-		std::cout << "Username: ";
-		gotoXY(left + 5, top + 4);
-		std::cout << "Password: ";
-		gotoXY(left + 5, top + 6);
-		std::cout << "Confirm Password: ";
+        gotoXY(centerWindow(chatLabel.length()), 3);
+        std::cout << chatLabel;
+        gotoXY(centerWindow(loginLabel.length()), 5);
+        std::cout << loginLabel;
 
-		gotoXY(left + 16, top + 2);
+        gotoXY(left + 5, top + 2);
+        std::cout << "Username: ";
+        gotoXY(left + 5, top + 4);
+        std::cout << "Password: ";
+        gotoXY(left + 5, top + 6);
+        std::cout << "Confirm Password: ";
+
+        gotoXY(left + 16, top + 2);
 		std::cin >> client.username;
 		gotoXY(left + 16, top + 4);
 		std::cin >> client.password;
 		gotoXY(left + 23, top + 6);
 		std::cin >> newPassword;
+        if(client.password != newPassword){
+            warnLabel = "Password does not match";
+            continue;
+        }
+        if (isPasswordValid(newPassword)) { // Kiểm tra mật khẩu hợp lệ
+            validPassword = true;
+        } else {
+            warnLabel = "Password is invalid. Please try again."; // Thông báo lỗi nếu mật khẩu không hợp lệ
+        }
+    }
 
-		warnLabel = "Password does not match";
-	}
-	//global.employee.setEmployeePassword(newPassword);
-    //Set password and login name for user here
-    std::string message = client.username + "," + client.password + ",0";
+    // Gửi thông tin đăng ký người dùng tới máy chủ và xử lý phản hồi
+    std::string message = username + "," + newPassword + ",0";
     send(clientSocket, message.c_str(), message.length(), 0);
-	system("cls");
-	
+    system("cls");
+    
     char buffer[1024] = {0};
     int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
     if (recvSize > 0) {
@@ -108,7 +125,8 @@ void GENERATE_SIGNUP(){
             notiBox("Something wrong with server");
         }
     }
-    return GENERATE_LOGIN();
+
+    GENERATE_LOGIN(); // Chuyển người dùng sang giao diện đăng nhập
 }
 
 void receiveMessages(SOCKET clientSocket) {
