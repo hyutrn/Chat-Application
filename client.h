@@ -4,7 +4,7 @@
 #include <thread>
 #pragma comment(lib, "Ws2_32.lib")
 
-#define IP_SERVER "192.168.37.44"
+#define IP_SERVER "192.168.37.41"
 #define PORT 8080
 
 std::vector<int> initMenuColor = {};
