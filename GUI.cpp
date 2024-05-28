@@ -224,3 +224,36 @@ void clearBuffer(int length)
         std::cout << " ";
     }
 }
+
+void WINDOW_RESOLUTION()
+{
+	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    SMALL_RECT windowSize = {0, 0, 127, 35}; // Set the window size here (left, top, right, bottom)
+    SetConsoleWindowInfo(console, TRUE, &windowSize);
+}
+
+void removeRectangle(int left, int top, int width, int height)
+{
+	hideCursor(true);
+	gotoXY(left, top);
+	std::cout << " ";
+	for (int i = 0; i < width; ++i) {
+		std::cout << " ";
+	}
+	std::cout << " ";
+
+	for (int i = 0; i <= height; ++i) {
+		gotoXY(left, top + i + 1);
+		std::cout << " ";
+	}	
+	gotoXY(left, top + height + 1);
+	std::cout << " ";
+	for (int i = 0; i < width; ++i) {
+		std::cout << " ";
+	}
+	std::cout << " ";
+	for (int i = 0; i <= height-1; ++i) {
+		gotoXY(left+width+1, top +i+1);
+		std::cout << " ";
+	}
+}
