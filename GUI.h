@@ -19,3 +19,5 @@ void loadingEffect(std::string text);
 void notiBox(std::string text);
 int optionMenu(int height, std::string chatLabel, std::string menuLabel, int numberMenu, ...);
 void clearBuffer(int length);
+void WINDOW_RESOLUTION();
+void removeRectangle(int left, int top, int right, int bottom);
