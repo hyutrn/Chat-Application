@@ -9,20 +9,24 @@
 #include <mutex>
 #include <algorithm>
 #include <unordered_map>
+#include<fstream>
 
 #pragma comment(lib, "Ws2_32.lib")
 
 #define PORT_SERVER 8080
-#define IP_SERVER "192.168.37.44"
+#define IP_SERVER "192.168.37.41"
 
-struct Account {
+#define FILE_NAME "account.txt"
+
+struct MessageAccount {
     std::string username;
     std::string password;
-    int id;
+    int key;
 };
 
-void CreateAccount(const std::string& username, const std::string& password);
-bool CheckAccount(const std::string& username, const std::string& password);
+
+int CreateAccount(const std::string& username, const std::string& password);
+bool CheckAccount(const std::string& userName, const std::string password,  const std::string& fileName);
 void BroadcastMessage(const std::string& message, SOCKET senderSocket, const std::string& username);
 void HandleClient(SOCKET clientSocket);
 int StartServer();
