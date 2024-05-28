@@ -1,2 +1,4 @@
 # Chat-Application
-Building a chat application using socket, TCP/IP and...
+Server:
+run this to compile: g++ -g serverSocket.cpp -o serverSocket -lws2_32
+run server: ./serverSocket.exe
