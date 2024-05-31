@@ -2,6 +2,29 @@
 
 struct client client;
 int endLine = 4;
+std::string senderName;
+
+// Hàm thực hiện mã hóa
+std::string encryptMessage(const std::string& plaintext, const std::string& key){
+    std::string ciphertext = plaintext; // Khởi tạo chuỗi mã hóa với cùng độ dài như plaintext
+    
+    for (size_t i = 0; i < plaintext.size(); ++i) {
+        ciphertext[i] = plaintext[i] ^ key[i % key.size()]; // XOR từng ký tự của plaintext với key
+    }
+    
+    return ciphertext; 
+}
+
+// Hàm thực hiện giải mã
+std::string decryptMessage(const std::string& ciphertext, const std::string& key){
+    std::string decryptedtext = ciphertext; // Khởi tạo chuỗi giải mã với cùng độ dài như ciphertext
+    
+    for (size_t i = 0; i < ciphertext.size(); ++i) {
+        decryptedtext[i] = ciphertext[i] ^ key[i % key.size()]; // XOR từng ký tự của ciphertext với key
+    }
+    
+    return decryptedtext;
+}   
 
 void GENERATE_LOGIN(){
     setColor(7);
@@ -48,6 +71,7 @@ void GENERATE_LOGIN(){
         } 
     }while(checkResponse != "201"); //check validate
     notiBox("Now you can start the conversation");
+    senderName = client.username;
     return JOIN_CHAT();
 }
 
@@ -114,40 +138,23 @@ void GENERATE_SIGNUP(){
             }
         }
 	}
-	//global.employee.setEmployeePassword(newPassword);
-    //Set password and login name for user here
-    // std::string message = client.username + "," + client.password + ",0";
-    // send(clientSocket, message.c_str(), message.length(), 0);
-	// system("cls");
-	
-    // char buffer[1024] = {0};
-    // int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
-    // if (recvSize > 0) {
-    //     std::string response(buffer, recvSize);
-    //     if (response == "200") {
-    //         notiBox("Sign up completed");
-    //     } 
-    //     else if(response == "403"){
-    //         notiBox("Username is already existed");
-    //     }
-    //     else {
-    //         notiBox("Something wrong with server");
-    //     }
-    // }
     return GENERATE_LOGIN();
 }
 
 void receiveMessages(SOCKET clientSocket) {
     char buffer[4096]; // Tăng kích thước buffer lên 4096 byte
-    std::string label = "====================== ROOM CHAT 1 ======================";
+    std::string messageAfter;
+    std::string label = "============ ROOM CHAT 1 ============";
     while (true) {
         int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
         gotoXY(centerWindow(label.length()), ++endLine);
         if (recvSize > 0) {
             std::string message(buffer, recvSize);
-            std::cout << message << std::endl;
+            messageAfter = decryptMessage(message, keyEncrypt);
+            std::cout << messageAfter << std::endl;
         }
-        gotoXY(22, 2);
+        gotoXY(22, 26);
+        std::cout << "You: ";
     }
 }
 
@@ -206,6 +213,7 @@ void RESET_SOCKET()
 
 void JOIN_CHAT()
 {
+    std::string messageBefore;
     hideCursor(true);
     int width = 80;
 	int height = 1;
@@ -234,7 +242,14 @@ void JOIN_CHAT()
             gotoXY(27, 2);
             gotoXY(centerWindow(label.length()), ++endLine);
             std::cout << "You: " << msg;
-            send(clientSocket, msg.c_str(), msg.length(), 0);
+            if(msg == "./exit"){
+                send(clientSocket, msg.c_str(), msg.length(), 0);
+                //closesocket(clientSocket);
+            } else {
+                std::string fullMessage = senderName + ": " + msg;          // Tạo tin nhắn đầy đủ
+                messageBefore = encryptMessage(fullMessage, keyEncrypt);
+                send(clientSocket, messageBefore.c_str(), messageBefore.length(), 0);
+            }
         }
         removeRectangle(left, top, width, height);
     }
