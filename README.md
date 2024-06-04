@@ -16,7 +16,6 @@ This project is a multi-client chat application implemented in C++ with encrypti
 - ├── server/
 - │ ├── server.cpp
 - │ ├── server.h
-- │ ├── server.exe
 - │ ├── account.txt
 - │ └── README.md
 - └── client/
@@ -24,7 +23,6 @@ This project is a multi-client chat application implemented in C++ with encrypti
 - ├── GUI.h
 - ├── client.cpp
 - ├── client.h
-- ├── main.exe
 - ├── compile.bat
 - └── README.md
 
