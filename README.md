@@ -35,7 +35,6 @@ The server component manages client connections and handles account management a
 
 - `server.cpp`: Contains the main server implementation.
 - `server.h`: Header file containing declarations for server functions.
-- `server.exe`: Compiled executable file of the server.
 - `account.txt`: Stores account information.
 - `README.md`: Description and usage information for the server.
 
@@ -49,7 +48,6 @@ The client component provides a GUI for users to interact with the chat system, 
 - `GUI.h`: Header file containing declarations for GUI functions.
 - `client.cpp`: Client-side logic implementation.
 - `client.h`: Header file containing declarations for client functions.
-- `main.exe`: Compiled executable file of the client.
 - `compile.bat`: Batch file for compiling the client.
 - `account.txt`: Stores account information.
 - `README.md`: Description and usage information for the client.
