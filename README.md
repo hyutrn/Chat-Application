@@ -11,7 +11,7 @@ This project is a multi-client chat server implemented in C++ with encryption an
 - **Concurrency control**: Uses mutexes to ensure thread-safe access to shared resources.
 
 ## Directory Structure
-
+- server
 - ├── server.cpp
 - ├── server.h
 - ├── server.exe
