@@ -93,19 +93,17 @@ This chat application allows multiple clients to communicate with each other thr
     ```sh
     g++ -g client.cpp GUI.cpp -o main -lws2_32
     ```
-
-3. **Run the server**:
-
+    or
     ```sh
-    ./main.exe
+    ./compile.bat
     ```
 
 ### Connecting Clients to Server
 
-Clients can connect to the server using a custom client application on client branch:
+Clients can connect to the server using a custom client application on client branch, open cmd in folder project and run this command:
 
 ```sh
-./client.exe
+./main.exe
 ```
 
 
