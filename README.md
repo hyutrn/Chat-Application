@@ -32,7 +32,7 @@ This project is a multi-client chat server implemented in C++ with encryption an
 1. **Clone the repository**:
 
     ```sh
-    git clone https://github.com/yourusername/chat-server.git
+    git clone https://github.com/hyutrn/Chat-Application.git
     cd chat-server
     ```
 
