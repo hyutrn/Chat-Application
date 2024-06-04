@@ -12,10 +12,10 @@ This project is a multi-client chat server implemented in C++ with encryption an
 
 ## Directory Structure
 
--├── server.cpp
--├── server.h
--├── CMakeLists.txt
--└── README.md
+- ├── server.cpp
+- ├── server.h
+- ├── CMakeLists.txt
+- └── README.md
 
 ## Getting Started
 
