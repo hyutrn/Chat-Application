@@ -14,7 +14,8 @@ This project is a multi-client chat server implemented in C++ with encryption an
 
 - ├── server.cpp
 - ├── server.h
-- ├── CMakeLists.txt
+- ├── server.exe
+- ├── account.txt
 - └── README.md
 
 ## Getting Started
@@ -22,6 +23,7 @@ This project is a multi-client chat server implemented in C++ with encryption an
 ### Prerequisites
 
 - Windows OS (for Winsock API)
+- Code editor (VSCode)
 - C++ compiler (e.g., MSVC, MinGW)
 - CMake (for building the project)
 
