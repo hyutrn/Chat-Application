@@ -69,17 +69,42 @@ This chat application allows multiple clients to communicate with each other thr
 1. Client sends: `./exit`
 2. Server notifies other clients that the user has left the chat room.
 
-## Function Descriptions
+## Getting Started
 
-### Encryption and Decryption
-```cpp
-std::string encryptMessage(const std::string& plaintext, const std::string& key);
-std::string decryptMessage(const std::string& ciphertext, const std::string& key);
+### Prerequisites
+
+- Windows OS (for Winsock API)
+- Code editor (VSCode)
+- C++ compiler (e.g., MSVC, MinGW)
+- CMake (for building the project)
+
+### Installation
+
+1. **Clone the repository**:
+
+    ```sh
+    git clone https://github.com/hyutrn/Chat-Application.git
+    cd client
+    ```
+
+2. **Build the project**:
+
+    ```sh
+    g++ -g client.cpp GUI.cpp -o main -lws2_32
+    ```
+
+3. **Run the server**:
+
+    ```sh
+    ./main.exe
+    ```
+
+### Connecting Clients to Server
+
+Clients can connect to the server using a custom client application on client branch:
+
+```sh
+./client.exe
 ```
-These functions perform encryption and decryption of messages using XOR operation with a given key.
-
-# GUI Functions
-
-Functions to manage the graphical user interface, such as drawing elements on the screen and setting console properties.
 
 
