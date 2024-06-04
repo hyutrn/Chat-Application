@@ -53,7 +53,7 @@ This project is a multi-client chat server implemented in C++ with encryption an
 Clients can connect to the server using a custom client application on client branch:
 
 ```sh
-./client.exe
+./main.exe
 ```
 ## Code Overview
 
