@@ -6,6 +6,7 @@ This chat application allows multiple clients to communicate with each other thr
 
 ## File Structure
 
+- client
 - ├── GUI.cpp
 - ├── GUI.h
 - ├── client.cpp
