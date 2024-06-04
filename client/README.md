@@ -13,7 +13,6 @@ This chat application allows multiple clients to communicate with each other thr
 - ├── client.h
 - ├── main.exe
 - ├── compile.bat
-- ├── account.txt
 - └── README.md
 
 ### File Descriptions
