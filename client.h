@@ -2,14 +2,16 @@
 #include "GUI.h"
 #include <vector>
 #include <thread>
-#include <string>   
+#include <set>
 #pragma comment(lib, "Ws2_32.lib")
 
-#define IP_SERVER "192.168.37.44"
+#define IP_SERVER "192.168.37.110"
 #define PORT 8080
+
 std::string keyEncrypt = "hello";       
 
 std::vector<int> initMenuColor = {};
+std::set<std::string> roomAvailable;
 SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 struct client{
@@ -17,10 +19,10 @@ struct client{
     std::string password = "";
 };
 
-std::string encryptMessage(const std::string& plaintext, const std::string& key);
-std::string decryptMessage(const std::string& ciphertext, const std::string& key);
 void GENERATE_LOGIN();
-void JOIN_CHAT();
+void SELECT_ROOM();
+void GENERATE_ROOM();
+void JOIN_CHAT(std::string roomName);
 void GENERATE_SIGNUP();
 void FIRST_MENU();
 int SOCKET_START(SOCKET &clientSocket);
