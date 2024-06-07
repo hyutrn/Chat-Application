@@ -13,6 +13,7 @@ void drawRectangle(int left, int top, int right, int bottom);
 void hideCursor(bool isHiden);
 int getTerminalWidth();
 int getTerminalHeight();
+std::string getTextElementBox(std::string text);
 int centerWindow(int width);
 int centerBox(int boxWidth, int width);
 void loadingEffect(std::string text);
