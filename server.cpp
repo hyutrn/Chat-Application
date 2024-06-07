@@ -255,16 +255,16 @@ void HandleClient(SOCKET clientSocket) {
             std::cout << clientMessage << std::endl;
             chatHistory.close();
             if (clientMessage == "/exit") {
-                // Tao thong user thoat khoi phong chat
-                // std::string exitMessage = UserName + " exit the chat room";
-                // std::string messExit = encryptMessage(exitMessage, keyEcrypt);
-                // for (size_t i = 0; i < clients.size(); ++i){
-                //     if(clients[i] != clientSocket){
-                //         send(clients[i],messExit.c_str(),messExit.length(), 0);
-                //     }
-                // }  
-                // break;
+                //Tao thong user thoat khoi phong chat
+                std::string exitMessage = UserName + " exit the chat room";
+                std::string messExit = encryptMessage(exitMessage, keyEcrypt);
+                for (size_t i = 0; i < clients.size(); ++i){
+                    if(clients[i] != clientSocket){
+                        send(clients[i],messExit.c_str(),messExit.length(), 0);
+                    }
+                }  
                 break;
+                //break;
             } 
             else {
                 BroadcastMessage(clientMessage, clientSocket, UserName); //gọi hàm gửi tin nhắn cho các client khác
