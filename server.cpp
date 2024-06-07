@@ -93,6 +93,38 @@ bool CheckAccount(const std::string& userName, const std::string& fileName){
     return false;
 }
 
+/**
+ * Function check password when login
+ * return true if match password else return false
+*/
+bool CheckLogIn(const std::string& username, const std::string& password, const std::string& fileName)
+{
+    std::ifstream file(fileName);
+
+    if(!file.is_open())
+    {
+        std::cout<<"Error when opening file\n";
+        return false;
+    }
+
+    std::string line;
+    while(std::getline(file, line))
+    {
+        if(line.substr(0, username.length()) == username)
+        {
+      
+            if(line.substr(username.length() + 1, password.length()) == password)
+            {
+                std::cout<<"Password correct";
+                file.close();
+                return true;
+            }
+            
+        }
+    }
+    std::cout<<"Password Invalid";
+    return false;
+}
 
 /*
 *   Save account in file
@@ -196,7 +228,7 @@ void HandleClient(SOCKET clientSocket) {
         // TH2: Key = 1: Server doi user dang nhap
         else if(messageLogin.key == 1){
             // Xac thuc tai khoan co trong he thong
-            if (CheckAccount(messageLogin.username, FILE_NAME) == true && loggedInAccounts[messageLogin.username] == false){
+            if (CheckLogIn(messageLogin.username, messageLogin.password, FILE_NAME) == true && loggedInAccounts[messageLogin.username] == false){
                 // Neu thanh cong, lay user luu vao UserName phuc vu viec gui, nhan tin nhan
                 UserName = messageLogin.username;
                 std::cout << "Account login: " << messageLogin.username << std::endl;
