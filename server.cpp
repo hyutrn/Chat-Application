@@ -1,5 +1,7 @@
 #include "server.h"
 
+//Update 07/06/2024: add check password function
+
 std::vector<SOCKET> clients;
 std::unordered_map<std::string, bool> loggedInAccounts;         // Dùng để quản lý login logout của account
 std::mutex clientsMutex;
