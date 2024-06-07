@@ -1,7 +1,7 @@
 # Chat Application
 
 ## New feature update (07/06)
-- Add room selection..
+- Add room selection.
 - Store chat history.
 - GUI function update.
 - GUI interface update.
