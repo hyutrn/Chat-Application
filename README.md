@@ -5,6 +5,7 @@
 - Store chat history.
 - GUI function update.
 - GUI interface update.
+- Temporary server for tesing client.
 
 ## Overview
 
