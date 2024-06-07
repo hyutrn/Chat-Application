@@ -1,3 +1,4 @@
+#Update 07/06/2024: Update notification for error password when login
 #include "client.h"
 
 struct client client;
