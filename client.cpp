@@ -67,6 +67,7 @@ void GENERATE_LOGIN(){
         int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
         if (recvSize > 0){
             std::string response(buffer, recvSize);
+            if(response == "401") warnLabel = "Invalid login name or password.";
             checkResponse = response;
         } 
     }while(checkResponse != "201"); //check validate
