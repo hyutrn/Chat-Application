@@ -1,11 +1,9 @@
-//Update 07/06/2024: Update notification for error password when login
 #include "client.h"
 
 struct client client;
 int endLine = 4;
 std::string senderName;
 
-// Hàm thực hiện mã hóa
 std::string encryptMessage(const std::string& plaintext, const std::string& key){
     std::string ciphertext = plaintext; // Khởi tạo chuỗi mã hóa với cùng độ dài như plaintext
     
@@ -28,6 +26,7 @@ std::string decryptMessage(const std::string& ciphertext, const std::string& key
 }   
 
 void GENERATE_LOGIN(){
+    system("cls");
     setColor(7);
 	hideCursor(false);
 	std::string warnLabel = "Welcome user";
@@ -68,13 +67,28 @@ void GENERATE_LOGIN(){
         int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
         if (recvSize > 0){
             std::string response(buffer, recvSize);
-            if(response == "401") warnLabel = "Invalid login name or password.";
             checkResponse = response;
         } 
     }while(checkResponse != "201"); //check validate
     notiBox("Now you can start the conversation");
     senderName = client.username;
-    return JOIN_CHAT();
+    return SELECT_ROOM();
+}
+
+void SELECT_ROOM()
+{
+    int option = optionMenu(8, "CHAT APPLICATION", "WELCOME TO CHAT", 2, "1. New room chat", "2. Available room chat");
+    switch(option){
+        case 1: GENERATE_ROOM(); break;
+    }
+
+}
+
+void GENERATE_ROOM()
+{
+    std::string roomName = getTextElementBox("Enter room name");
+    roomAvailable.insert(roomName);
+    JOIN_CHAT(roomName);
 }
 
 void GENERATE_SIGNUP(){
@@ -140,23 +154,42 @@ void GENERATE_SIGNUP(){
             }
         }
 	}
+	//global.employee.setEmployeePassword(newPassword);
+    //Set password and login name for user here
+    // std::string message = client.username + "," + client.password + ",0";
+    // send(clientSocket, message.c_str(), message.length(), 0);
+	// system("cls");
+	
+    // char buffer[1024] = {0};
+    // int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
+    // if (recvSize > 0) {
+    //     std::string response(buffer, recvSize);
+    //     if (response == "200") {
+    //         notiBox("Sign up completed");
+    //     } 
+    //     else if(response == "403"){
+    //         notiBox("Username is already existed");
+    //     }
+    //     else {
+    //         notiBox("Something wrong with server");
+    //     }
+    // }
     return GENERATE_LOGIN();
 }
 
 void receiveMessages(SOCKET clientSocket) {
     char buffer[4096]; // Tăng kích thước buffer lên 4096 byte
     std::string messageAfter;
-    std::string label = "============ ROOM CHAT 1 ============";
+    std::string label = "====================== ROOM CHAT 1 ======================";
     while (true) {
         int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
-        gotoXY(centerWindow(label.length()), ++endLine);
+        gotoXY(centerWindow(label.length()) + 4, ++endLine);
         if (recvSize > 0) {
             std::string message(buffer, recvSize);
             messageAfter = decryptMessage(message, keyEncrypt);
             std::cout << messageAfter << std::endl;
         }
-        gotoXY(22, 26);
-        std::cout << "You: ";
+        gotoXY(22, 2);
     }
 }
 
@@ -213,29 +246,32 @@ void RESET_SOCKET()
     clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // Create a new socket
 }
 
-void JOIN_CHAT()
+void JOIN_CHAT(std::string roomName)
 {
-    std::string messageBefore;
+    system("cls");
     hideCursor(true);
+    std::string messageBefore;
     int width = 80;
 	int height = 1;
 	int top = 1;
 	int left = centerWindow(width);
     char key;
-    std::string label = "====================== ROOM CHAT 1 ======================";
+    std::string label_s = "======================";
+    std::string label = label_s + " " + roomName + " " + label_s;
     std::thread receiveThread(receiveMessages, clientSocket);
     receiveThread.detach();
     gotoXY(centerBox(width, label.length()), 4);
     std::cout << label;
-    while (true) {
+    std::string msg = "";
+    while (msg != "/exit") {
         key = _getch();
         drawRectangle(left, top, width, height);
         if(key == 't' || key == 'T'){
             hideCursor(false);
             gotoXY(22, 2);
-            std::string msg;
             std::cout << "You: ";
             std::getline(std::cin >>std::ws, msg);
+            
             gotoXY(22, 2); // Move cursor to the beginning of the input line
             for (size_t i = 0; i < msg.length() + 5; ++i) { // +5 to cover "You: " prefix
                 std::cout << " "; // Overwrite with spaces
@@ -244,17 +280,13 @@ void JOIN_CHAT()
             gotoXY(27, 2);
             gotoXY(centerWindow(label.length()), ++endLine);
             std::cout << "You: " << msg;
-            if(msg == "./exit"){
-                send(clientSocket, msg.c_str(), msg.length(), 0);
-                //closesocket(clientSocket);
-            } else {
-                std::string fullMessage = senderName + ": " + msg;          // Tạo tin nhắn đầy đủ
-                messageBefore = encryptMessage(fullMessage, keyEncrypt);
-                send(clientSocket, messageBefore.c_str(), messageBefore.length(), 0);
-            }
+            std::string fullMessage = senderName + ": " + msg;          // Tạo tin nhắn đầy đủ
+            messageBefore = encryptMessage(fullMessage, keyEncrypt);
+            send(clientSocket, messageBefore.c_str(), messageBefore.length(), 0);
         }
         removeRectangle(left, top, width, height);
     }
+    return SELECT_ROOM();
 }
 
 int main(){
