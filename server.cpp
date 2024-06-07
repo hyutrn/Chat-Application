@@ -227,7 +227,6 @@ void HandleClient(SOCKET clientSocket) {
 
     bool join = true;
     // Xử lý phần gửi nhận tin nhắn
-    std::ofstream chatHistory("room1.txt", std::ios::app);
     while (true){
         //Notify User join the chat room
         if(join){
@@ -246,21 +245,25 @@ void HandleClient(SOCKET clientSocket) {
         }
         recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
         if (recvSize > 0) {
+            std::ofstream chatHistory("room1.txt", std::ios::app);
             std::string clientMessage(buffer, recvSize);
-            std::cout<<clientMessage<<std::endl;
+            //std::cout<<clientMessage<<std::endl;
             clientMessage = decryptMessage(clientMessage, "hello");
             chatHistory << clientMessage + '\n';
             //Với câu lệnh "./exit", tức client sẽ ngắt kết nối với server
             //notify exit the chat room
-            if (clientMessage == "./exit") {
+            std::cout << clientMessage << std::endl;
+            chatHistory.close();
+            if (clientMessage == "/exit") {
                 // Tao thong user thoat khoi phong chat
-                std::string exitMessage = UserName + " exit the chat room";
-                std::string messExit = encryptMessage(exitMessage, keyEcrypt);
-                for (size_t i = 0; i < clients.size(); ++i){
-                    if(clients[i] != clientSocket){
-                        send(clients[i],messExit.c_str(),messExit.length(), 0);
-                    }
-                }  
+                // std::string exitMessage = UserName + " exit the chat room";
+                // std::string messExit = encryptMessage(exitMessage, keyEcrypt);
+                // for (size_t i = 0; i < clients.size(); ++i){
+                //     if(clients[i] != clientSocket){
+                //         send(clients[i],messExit.c_str(),messExit.length(), 0);
+                //     }
+                // }  
+                // break;
                 break;
             } 
             else {
@@ -276,12 +279,10 @@ void HandleClient(SOCKET clientSocket) {
                 });
                 clients.erase(it, clients.end());
             }
-
             closesocket(clientSocket);
             break;
         }
     }
-    chatHistory.close();
 
     // Remove the client from the clients list and close the socket
     {
