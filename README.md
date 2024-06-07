@@ -1,5 +1,11 @@
 # Chat Application
 
+## New feature update (07/06)
+- Add room selection..
+- Store chat history.
+- GUI function update.
+- GUI interface update.
+
 ## Overview
 
 This chat application allows multiple clients to communicate with each other through a server. It supports user registration, login, encrypted messaging, and real-time message broadcasting.
