@@ -113,7 +113,7 @@ Clients can connect to the server using a custom client application on client br
 ./main.exe
 ```
 
-## Running test Server (before running client)
+## Notice: Running test Server (before running client)
 1. **Build server**:
     ```sh
     g++ -g server.cpp -o server -lws2_32
