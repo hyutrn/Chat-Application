@@ -112,11 +112,13 @@ Clients can connect to the server using a custom client application on client br
 ```sh
 ./main.exe
 ```
-### Running test Server (before running client)
+
+## Running test Server (before running client)
+1. **Build server**:
     ```sh
     g++ -g server.cpp -o server -lws2_32
     ```
-    and
+2. **Run server**:
     
     ```sh
     ./server.exe
