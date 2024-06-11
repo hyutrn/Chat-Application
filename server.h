@@ -14,6 +14,7 @@
 #include <cstdlib> // thư viện cần thiết cho rand() và srand()
 #include <ctime>   // thư viện cần thiết cho time()
 #include <fstream>
+#include <set>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -29,6 +30,7 @@ struct Account {
     int key;
 };
 
+std::set<std::string> roomAvailable;
 std::string encryptMessage(const std::string& plaintext, const std::string& key);
 bool CheckID(const std::string& ID, const std::string& fileName);
 int generateID();
