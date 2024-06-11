@@ -1,6 +1,6 @@
 # Chat Application
 
-#Notice
+## Notice
 - This program only work with server and client in this branch. Do not use other client or server from other branch.
 - Run the program following the instruction below.
 
