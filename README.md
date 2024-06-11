@@ -7,7 +7,7 @@
   + 602: Error - Cannot join the room.
 - New request command from client to server:
   + "cr00m": Request server create a new room chat.
-  + "ar00m": Request server to join to an available room chat.
+  + "ar00m": Request server to join in an available room chat.
 
 ## New feature update (07/06)
 - Add room selection.
