@@ -179,6 +179,7 @@ void HandleClient(SOCKET clientSocket) {
     // Bien UserName de luu username tu user
     std::string UserName; 
     int recvSize;
+    bool loginSuccessful = false;
 
     while(recvSize = recv(clientSocket, buffer, sizeof(buffer), 0)){
         std::string message(buffer, recvSize);
@@ -204,7 +205,7 @@ void HandleClient(SOCKET clientSocket) {
                 send(clientSocket, "201", 3, 0);
                 // Danh dau user da dang nhap
                 logAccount(UserName, 0);
-                break;
+                loginSuccessful = true;
             } else{
                 // Nguoc lai, gui ma 401 cho user thong bao dang nhap khong thanh cong
                 std::cout << "Account login failed: " << messageLogin.username << std::endl;
@@ -214,10 +215,51 @@ void HandleClient(SOCKET clientSocket) {
 
         // Các trường hợp còn lại in thông báo lỗi ra màn hình
         else {
-                std::cout << "Invalid key value" << std::endl;      
-                closesocket(clientSocket);
-                return;
+            std::cout << "Invalid key value" << std::endl;      
+            closesocket(clientSocket);
+            return;
         }
+
+        //Cho client chon room
+        if(loginSuccessful){
+            bool joinRoomSuccesful = false;
+            while(!joinRoomSuccesful){
+                recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
+                std::string request, room;
+                std::string roomAssignFromClient(buffer, recvSize);
+                size_t delimiterPos = roomAssignFromClient.find(',');
+                if (delimiterPos != std::string::npos) {
+                    request = roomAssignFromClient.substr(0, delimiterPos);
+                    room = roomAssignFromClient.substr(delimiterPos + 1);
+                } else {
+                    // Neu khong kiem tra duoc dau phay trong chuoi
+                    std::cout << "Undefined request from client !" << std::endl;
+                    continue;
+                }
+                if(request == "cr00m"){
+                    if(roomAvailable.find(room) != roomAvailable.end()){
+                        send(clientSocket, "603", 3, 0);
+                    }
+                    else{
+                        roomAvailable.insert(room);
+                        send(clientSocket, "601", 3, 0);
+                        joinRoomSuccesful = true;
+                    }
+                }
+
+                //Phan join vao phong da co san chua lam
+                else if(request == "ar00m"){
+                    {
+                        send(clientSocket, "601", 3, 0);
+                        joinRoomSuccesful = true;
+                    }
+                }
+                else{
+                    send(clientSocket, "602", 3, 0);
+                }
+            }
+        }
+        break;
     }
 
     {
@@ -226,6 +268,7 @@ void HandleClient(SOCKET clientSocket) {
     }
 
     bool join = true;
+    std::cout << "ASD";
     // Xử lý phần gửi nhận tin nhắn
     while (true){
         //Notify User join the chat room
@@ -248,8 +291,9 @@ void HandleClient(SOCKET clientSocket) {
             std::ofstream chatHistory("room1.txt", std::ios::app);
             std::string clientMessage(buffer, recvSize);
             //std::cout<<clientMessage<<std::endl;
-            clientMessage = decryptMessage(clientMessage, "hello");
-            chatHistory << clientMessage + '\n';
+            std::string historyChat = clientMessage;
+            historyChat = decryptMessage(historyChat, "hello");
+            chatHistory << historyChat + '\n';
             //Với câu lệnh "./exit", tức client sẽ ngắt kết nối với server
             //notify exit the chat room
             std::cout << clientMessage << std::endl;
