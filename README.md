@@ -9,6 +9,7 @@
 - New request command from client to server:
   + "cr00m": Request server create a new room chat.
   + "ar00m": Request server to join in an available room chat.
+- Update more GUI function for client.
 
 ## New feature update (07/06)
 - Add room selection.
