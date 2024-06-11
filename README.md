@@ -1,5 +1,11 @@
 # Chat Application
 
+## New feature update (11/06)
+- Room handle from server.
+- Add new check code from server to client:
+  + 601: Create room successful.
+  + 602: Room is already created, cannot create new room.
+
 ## New feature update (07/06)
 - Add room selection.
 - Store chat history.
