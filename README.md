@@ -3,8 +3,8 @@
 ## New feature update (11/06)
 - Room handle from server.
 - Add new check code from server to client:
-  + 601: Create room successful.
-  + 602: Room is already created, cannot create new room.
+  + 601: No error - Allow client to join the room.
+  + 602: Error - Cannot join the room.
 - New request command from client to server:
   + "cr00m": Request server create a new room chat.
   + "ar00m": Request server to join to an available room chat.
