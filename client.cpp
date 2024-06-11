@@ -70,7 +70,6 @@ void GENERATE_LOGIN(){
             checkResponse = response;
         } 
     }while(checkResponse != "201"); //check validate
-    notiBox("Now you can start the conversation");
     senderName = client.username;
     return SELECT_ROOM();
 }
@@ -87,8 +86,21 @@ void SELECT_ROOM()
 void GENERATE_ROOM()
 {
     std::string roomName = getTextElementBox("Enter room name");
-    roomAvailable.insert(roomName);
-    JOIN_CHAT(roomName);
+    std::string roomAssignToServer = "cr00m," + roomName;
+    send(clientSocket, roomAssignToServer.c_str(), roomAssignToServer.length(), 0);
+    char buffer[1024] = {0};
+    int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
+    if(recvSize > 0){
+        std::string response(buffer, recvSize);
+        if(response == "603"){
+            notiBox("Room name is already existed");
+            return SELECT_ROOM();
+        }
+        else if(response == "601"){
+            notiBox("Now you can start the conversation");
+            JOIN_CHAT(roomName);
+        }
+    }    
 }
 
 void GENERATE_SIGNUP(){
