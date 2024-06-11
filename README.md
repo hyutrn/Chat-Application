@@ -1,5 +1,9 @@
 # Chat Application
 
+#Notice
+- This program only work with server and client in this branch. Do not use other client or server from other branch.
+- Run the program following the instruction below.
+
 ## New feature update (11/06)
 - Room handle from server.
 - Add new check code from server to client:
