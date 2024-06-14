@@ -7,6 +7,7 @@ std::mutex accountsMutex;
 std::mutex loginMutex;                                          // Mutex mới để quản lý trạng thái đăng nhập
 int currentID;                                              // Biến toàn cục để theo dõi ID hiện tại
 
+std::unordered_map<std::string, std::vector<SOCKET>> chatroom;
 // Hàm thực hiện mã hóa
 std::string encryptMessage(const std::string& plaintext, const std::string& key){
     std::string ciphertext = plaintext; // Khởi tạo chuỗi mã hóa với cùng độ dài như plaintext
@@ -144,11 +145,11 @@ void logAccount(const std::string& username, int flagAccount){
 }
 
 // Hàm gửi tin nhắn tới các user khác trong room chat
-void BroadcastMessage(const std::string& message, SOCKET senderSocket, const std::string& username) {
+void BroadcastMessage(const std::string& message, const std::vector<SOCKET>& clients, const SOCKET senderSocket) {
     std::lock_guard<std::mutex> lock(clientsMutex);
     //std::string senderName = username;                              // Lấy tên người gửi
     //std::string fullMessage = senderName + ": " + message;          // Tạo tin nhắn đầy đủ
-    std::cout << message << std::endl;
+    //std::cout << message << std::endl;
     // Gui tin nhan cho cac user khac
     for (SOCKET client : clients) { 
         if (client != senderSocket) {                               
@@ -173,12 +174,43 @@ Account CheckMessage(const std::string& message){
     return {username, password, key};
 }
 
+Message splitMessage(const std::string& message)
+{
+    size_t pos1 = message.find(',');
+    size_t pos2 = message.rfind(',');
+   
+    std::string roomName = message.substr(0, pos1);
+    std::string userName = message.substr(pos1 + 1, pos2 - pos1 - 1);
+    std::string messages = message.substr(pos2 + 1, message.length() - pos2);
+    std::cout<<message<<std::endl;
+    return {roomName, userName, messages};
+}
+
+/**
+ * 
+ * @param room name, clientSocket IP address of client
+ * 
+*/
+void roomChat(std::string room, SOCKET clientSocket)
+{
+    auto check = std::find(chatroom[room].begin(), chatroom[room].end(), clientSocket);
+    if(check == chatroom[room].end())
+    {
+        chatroom[room].emplace_back(clientSocket);
+    }else{
+        std::cout<<"Client exist"<<std::endl;
+    }
+
+}
+
+
 // Hàm handle cac client 
 void HandleClient(SOCKET clientSocket) {
     char buffer[2048] = {0};
     // Bien UserName de luu username tu user
     std::string UserName; 
     int recvSize;
+    bool loginSuccessful = false;
 
     while(recvSize = recv(clientSocket, buffer, sizeof(buffer), 0)){
         std::string message(buffer, recvSize);
@@ -190,6 +222,9 @@ void HandleClient(SOCKET clientSocket) {
             // Neu viec khoi tao thanh cong, gui ma 200 bao cho user
             if(CreateAccount(messageLogin.username, messageLogin.password,clientSocket) > 0){
                 send(clientSocket, "200", 3, 0);
+            }
+            else{
+                continue;
             }
         }
 
@@ -204,19 +239,64 @@ void HandleClient(SOCKET clientSocket) {
                 send(clientSocket, "201", 3, 0);
                 // Danh dau user da dang nhap
                 logAccount(UserName, 0);
-                break;
+                loginSuccessful = true;
+                //break;
             } else{
                 // Nguoc lai, gui ma 401 cho user thong bao dang nhap khong thanh cong
                 std::cout << "Account login failed: " << messageLogin.username << std::endl;
                 send(clientSocket, "401", 3, 0);
             }
         }
-
-        // Các trường hợp còn lại in thông báo lỗi ra màn hình
+        // Các trường hợp còn lại in thông báo lỗi ra màn hìnhplitMessage
         else {
-                std::cout << "Invalid key value" << std::endl;      
-                closesocket(clientSocket);
+            std::cout << "Invalid key value" << std::endl;      
+            closesocket(clientSocket);
             return;
+        }
+
+        //Cho client chon room
+        if(loginSuccessful){
+            bool joinRoomSuccesful = false;
+            while(!joinRoomSuccesful){
+                recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
+                
+                std::string request, room;
+                std::string roomAssignFromClient(buffer, recvSize);
+                size_t delimiterPos = roomAssignFromClient.find(',');
+                if (delimiterPos != std::string::npos) {
+                    request = roomAssignFromClient.substr(0, delimiterPos);
+                    room = roomAssignFromClient.substr(delimiterPos + 1);
+                } else {
+                    // Neu khong kiem tra duoc dau phay trong chuoi
+                    std::cout << "Undefined request from client !" << std::endl;
+                    continue;
+                }
+                if(request == "cr00m"){
+                    if(roomAvailable.find(room) != roomAvailable.end()){
+
+                        send(clientSocket, "603", 3, 0);
+                    }
+                    else{
+                        roomAvailable.insert(room);
+                        roomChat(room, clientSocket);
+                        send(clientSocket, "601", 3, 0);
+
+                        joinRoomSuccesful = true;
+                    }
+                }
+
+                else if(request == "ar00m"){
+                    {
+                        send(clientSocket, "601", 3, 0);
+                        roomChat(room, clientSocket);
+                        joinRoomSuccesful = true;
+                    }
+                }
+                else{
+                    send(clientSocket, "602", 3, 0);
+                }
+            }
+            break;
         }
     }
 
@@ -245,12 +325,19 @@ void HandleClient(SOCKET clientSocket) {
         }
         recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
         if (recvSize > 0) {
+            std::ofstream chatHistory("room1.txt", std::ios::app);
             std::string clientMessage(buffer, recvSize);
-            std::cout<<clientMessage<<std::endl;
+            //std::cout<<clientMessage<<std::endl;
+            std::string historyChat = clientMessage;
+            historyChat = decryptMessage(historyChat, "hello");
+            chatHistory << historyChat + '\n';
             //Với câu lệnh "./exit", tức client sẽ ngắt kết nối với server
             //notify exit the chat room
-            if (clientMessage == "./exit") {
-                // Tao thong user thoat khoi phong chat
+            // std::cout << historyChat << std::endl;
+            Message fullMessage = splitMessage(historyChat);
+            chatHistory.close();
+            if (clientMessage == "/exit") {
+                //Tao thong user thoat khoi phong chat
                 std::string exitMessage = UserName + " exit the chat room";
                 std::string messExit = encryptMessage(exitMessage, keyEcrypt);
                 for (size_t i = 0; i < clients.size(); ++i){
@@ -259,9 +346,11 @@ void HandleClient(SOCKET clientSocket) {
                     }
                 }  
                 break;
+                //break;
             } 
             else {
-                BroadcastMessage(clientMessage, clientSocket, UserName); //gọi hàm gửi tin nhắn cho các client khác
+                std::string messageDecrypt = encryptMessage(fullMessage.message, "hello");
+                BroadcastMessage(messageDecrypt, chatroom[fullMessage.roomName], clientSocket); //gọi hàm gửi tin nhắn cho các client khác
             }
         }
         else {
@@ -273,7 +362,6 @@ void HandleClient(SOCKET clientSocket) {
                 });
                 clients.erase(it, clients.end());
             }
-
             closesocket(clientSocket);
             break;
         }
