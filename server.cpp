@@ -222,9 +222,10 @@ void HandleClient(SOCKET clientSocket) {
             // Neu viec khoi tao thanh cong, gui ma 200 bao cho user
             if(CreateAccount(messageLogin.username, messageLogin.password,clientSocket) > 0){
                 send(clientSocket, "200", 3, 0);
-               
             }
-
+            else{
+                continue;
+            }
         }
 
         // TH2: Key = 1: Server doi user dang nhap
@@ -239,6 +240,7 @@ void HandleClient(SOCKET clientSocket) {
                 // Danh dau user da dang nhap
                 logAccount(UserName, 0);
                 loginSuccessful = true;
+                //break;
             } else{
                 // Nguoc lai, gui ma 401 cho user thong bao dang nhap khong thanh cong
                 std::cout << "Account login failed: " << messageLogin.username << std::endl;
@@ -283,7 +285,6 @@ void HandleClient(SOCKET clientSocket) {
                     }
                 }
 
-                //Phan join vao phong da co san chua lam
                 else if(request == "ar00m"){
                     {
                         send(clientSocket, "601", 3, 0);
@@ -295,8 +296,8 @@ void HandleClient(SOCKET clientSocket) {
                     send(clientSocket, "602", 3, 0);
                 }
             }
+            break;
         }
-        break;
     }
 
     {
