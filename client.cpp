@@ -247,6 +247,7 @@ int SOCKET_START(SOCKET &clientSocket)
 void SET_UP_CONNECTION(){
     int socketComplete;
     do{
+        IP_CONFIG();
         loadingEffect("Connecting to server...");
         socketComplete = SOCKET_START(clientSocket);
     } while(socketComplete);
@@ -256,6 +257,18 @@ void RESET_SOCKET()
 {
     closesocket(clientSocket); // Close the existing socket
     clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // Create a new socket
+}
+
+void IP_CONFIG()
+{
+    int IP_GENERATE = optionMenu(9, "CHAT APPLICATION", "IP SERVER", 4, "192.168.37.110", "192.168.37.44", "192.168.37.40", "192.168.37.41");
+    switch(IP_GENERATE){
+        case 1: IP_SERVER = "192.168.37.110"; break;
+        case 2: IP_SERVER = "192.168.37.44"; break;
+        case 3: IP_SERVER = "192.168.37.40"; break;
+        case 4: IP_SERVER = "192.168.37.41"; break;
+    }
+    system("cls");
 }
 
 void JOIN_CHAT(std::string roomName)
