@@ -5,7 +5,8 @@
 #include <set>
 #pragma comment(lib, "Ws2_32.lib")
 
-#define IP_SERVER "192.168.37.110"
+const char *IP_SERVER = "192.168.37.110";
+
 #define PORT 8080
 
 std::string keyEncrypt = "hello";       
@@ -29,5 +30,6 @@ int SOCKET_START(SOCKET &clientSocket);
 void AUTHENTICATION();
 void SET_UP_CONNECTION();
 void RESET_SOCKET();
+void IP_CONFIG();
 
 void receiveMessages(SOCKET clientSocket);
