@@ -13,11 +13,13 @@
 #include<fstream>
 #include <cstdlib> // thư viện cần thiết cho rand() và srand()
 #include <ctime>   // thư viện cần thiết cho time()
+#include <fstream>
+#include <set>
 
 #pragma comment(lib, "Ws2_32.lib")
 
 #define PORT_SERVER 8080
-#define IP_SERVER "192.168.37.44"
+#define IP_SERVER "192.168.37.41"
 
 #define FILE_NAME "account.txt"
 std::string keyEcrypt = "hello";
@@ -27,7 +29,14 @@ struct Account {
     std::string password;
     int key;
 };
+struct Message
+{
+    std::string roomName;
+    std::string userName;
+    std::string message;
+};
 
+std::set<std::string> roomAvailable;
 std::string encryptMessage(const std::string& plaintext, const std::string& key);
 bool CheckID(const std::string& ID, const std::string& fileName);
 int generateID();
