@@ -419,6 +419,27 @@ std::string labelUser(const std::string &line, const std::string &username)
     return line;
 }
 
+void printMessage(std::string &message)
+{
+    int terminalWidth = getTerminalWidth();
+    int currentLineWidth = 0;
+    std::string label = "=================================================";
+    for (char c : message) {
+        if (c == '\n') {
+            std::cout << c;
+            currentLineWidth = 0;
+        } else {
+            std::cout << c;
+            currentLineWidth++;
+
+            if (currentLineWidth >= terminalWidth/2.5) {
+                gotoXY(centerWindow(label.length()+1), ++endLine);
+                currentLineWidth = 0;
+            }
+        }
+    }
+}
+
 void GENERATE_LOGIN()
 {
     system("cls");
@@ -743,7 +764,8 @@ void JOIN_CHAT(std::string roomName)
             //Move cursor back to the beginning of the input line
             gotoXY(27, 2);
             gotoXY(centerWindow(label.length()), ++endLine);
-            std::cout << "You: " << msg;
+            std::cout << "You: ";
+            printMessage(msg);
             std::string fullMessage = roomName + "," + senderName + ": " + msg;          // Tạo tin nhắn đầy đủ
             messageBefore = encryptMessage(fullMessage, keyEncrypt);
             send(clientSocket, messageBefore.c_str(), messageBefore.length(), 0);
