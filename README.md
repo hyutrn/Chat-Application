@@ -4,6 +4,15 @@
 - The program only work with server and client in this branch. Do not use other client or server from other branch.
 - Run the program following the instruction below.
 
+## New feature update (18/06)
+- Store and load history chat for each room.
+- Multi-room chat has been available.
+- New command for emoji.
+- Repair choose server IP before connect.
+- Handling out of range message (auto endline when message is too long).
+- /exit command to exit current page.
+* Notice: Change the directory in client.cpp -> REQUEST_TO_SERVER() function to current directory of SERVER to get the chat history.
+
 ## New feature update (14/06)
 - New function: Choose server IP before connect.
 
