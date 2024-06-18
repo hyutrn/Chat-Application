@@ -981,7 +981,7 @@ void HandleClient(SOCKET clientSocket) {
                 break;
             }
         }
-
+    //hjgjh
         {
             std::lock_guard<std::mutex> lock(clientsMutex);
             clients.push_back(clientSocket);
