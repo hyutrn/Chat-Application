@@ -391,9 +391,36 @@ std::string decryptMessage(const std::string& ciphertext, const std::string& key
     }
     
     return decryptedtext;
-}   
+}
 
-void GENERATE_LOGIN(){
+std::string createLabel(const std::string &roomName, size_t size, char fillChar)
+{
+    size_t fillSize = (roomName.size() < size) ? (size - roomName.size()) / 2 : 0;
+
+    std::string fill(fillSize, fillChar);
+
+    std::string label = fill + " " + roomName + " " + fill;
+    if (label.size() < size) {
+        label += fillChar;
+    }
+
+    return label;
+}
+
+std::string labelUser(const std::string &line, const std::string &username)
+{
+    size_t pos = line.find(":");
+    if (pos != std::string::npos) {
+        std::string name = line.substr(0, pos);
+        if (name == username) {
+            return "You" + line.substr(pos);
+        }
+    }
+    return line;
+}
+
+void GENERATE_LOGIN()
+{
     system("cls");
     setColor(7);
 	hideCursor(false);
@@ -467,6 +494,7 @@ void GENERATE_ROOM()
         }
         else if(response == "601"){
             notiBox("Now you can start the conversation");
+            REQUEST_TO_SERVER(chatDatabase, roomName);
             JOIN_CHAT(roomName);
         }
     }    
@@ -483,6 +511,7 @@ void ENTER_ROOM()
         std::string response(buffer, recvSize);
         if(response == "601"){
             notiBox("Now you can start the conversation");
+            REQUEST_TO_SERVER(chatDatabase, roomName);
             JOIN_CHAT(roomName);
         }
     }    
@@ -579,13 +608,42 @@ void GENERATE_SIGNUP(){
     return GENERATE_LOGIN();
 }
 
-void receiveMessages(SOCKET clientSocket) {
+void LOAD_HISTORY_CHAT(std::string &chatDatabase, std::string &username)
+{
+    std::ifstream file(chatDatabase);
+    // if (!file.is_open()) {
+    //     std::cerr << "Failed to load history chat! " << chatDatabase << std::endl;
+    //     return;
+    // }
+
+    std::string line;
+    const int fixedWidth = 50;
+    std::string label = std::string((fixedWidth - username.length() - 2) / 2, '=') 
+                        + " " + username + " " 
+                        + std::string((fixedWidth - username.length() - 2) / 2, '=');
+
+    while (std::getline(file, line)) {
+        line = labelUser(line, username);
+        gotoXY(centerWindow(label.length()) - 1, ++endLine);
+        std::cout << line << std::endl;
+    }
+
+    file.close();
+}
+
+void REQUEST_TO_SERVER(std::string &chatDatabase, std::string roomName)
+{
+    chatDatabase = "C://Users//intern.hhtu1//Desktop//Zalo_Rep//server//" + roomName;
+}
+
+void receiveMessages(SOCKET clientSocket)
+{
     char buffer[4096]; // Tăng kích thước buffer lên 4096 byte
     std::string messageAfter;
-    std::string label = "====================== ROOM CHAT 1 ======================";
+    std::string label = "=================================================";
     while (true) {
         int recvSize = recv(clientSocket, buffer, sizeof(buffer), 0);
-        gotoXY(centerWindow(label.length()) + 4, ++endLine);
+        gotoXY(centerWindow(label.length()) - 1, ++endLine);
         if (recvSize > 0) {
             std::string message(buffer, recvSize);
             messageAfter = decryptMessage(message, keyEncrypt);
@@ -594,8 +652,6 @@ void receiveMessages(SOCKET clientSocket) {
         gotoXY(22, 2);
     }
 }
-
-
 
 void FIRST_MENU()
 {
@@ -660,22 +716,24 @@ void JOIN_CHAT(std::string roomName)
 	int left = centerWindow(width);
     char key;
     std::string label_s = "======================";
-    std::string label = label_s + " " + roomName + " " + label_s;
+    std::string label = createLabel(roomName);
     std::thread receiveThread(receiveMessages, clientSocket);
     receiveThread.detach();
     gotoXY(centerBox(width, label.length()), 4);
     std::cout << label;
     std::string msg = "";
+    gotoXY(22, 2);
+    LOAD_HISTORY_CHAT(chatDatabase, client.username);
     while (msg != "/exit") {
         key = _getch();
         drawRectangle(left, top, width, height);
         if(key == 't' || key == 'T'){
             hideCursor(false);
-            gotoXY(22, 2);
+            gotoXY(23, 2);
             std::cout << "You: ";
             std::getline(std::cin >>std::ws, msg);
             
-            gotoXY(22, 2); // Move cursor to the beginning of the input line
+            gotoXY(23, 2); // Move cursor to the beginning of the input line
             for (size_t i = 0; i < msg.length() + 5; ++i) { // +5 to cover "You: " prefix
                 std::cout << " "; // Overwrite with spaces
             }
