@@ -732,7 +732,10 @@ void JOIN_CHAT(std::string roomName)
             gotoXY(23, 2);
             std::cout << "You: ";
             std::getline(std::cin >>std::ws, msg);
-            
+            if(msg == "/smile") msg = "(^_^)";
+            else if(msg == "/sad") msg = "(T_T)";
+            else if(msg == "/wow") msg = "(O.O)";
+            else if(msg == "/scare") msg = "(|-.-|)";
             gotoXY(23, 2); // Move cursor to the beginning of the input line
             for (size_t i = 0; i < msg.length() + 5; ++i) { // +5 to cover "You: " prefix
                 std::cout << " "; // Overwrite with spaces
