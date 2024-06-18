@@ -26,6 +26,7 @@ struct client{
 bool isPasswordValid(const std::string& password);
 std::string createLabel(const std::string& roomName, size_t size = 50, char fillChar = '=');
 std::string labelUser(const std::string &line, const std::string &username);
+void printMessage(std::string& message);
 void GENERATE_LOGIN();
 void ENTER_ROOM();
 void SELECT_ROOM();
