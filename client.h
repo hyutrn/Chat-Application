@@ -4,6 +4,7 @@
 #include <thread>
 #include <set>
 #include <regex> // Thêm thư viện regex để kiểm tra mật khẩu
+#include <fstream>
 #pragma comment(lib, "Ws2_32.lib")
 
 const char *IP_SERVER = "192.168.37.110";
@@ -14,6 +15,7 @@ std::string keyEncrypt = "hello";
 
 std::vector<int> initMenuColor = {};
 std::set<std::string> roomAvailable;
+std::string chatDatabase = "";
 SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 struct client{
@@ -22,6 +24,8 @@ struct client{
 };
 
 bool isPasswordValid(const std::string& password);
+std::string createLabel(const std::string& roomName, size_t size = 50, char fillChar = '=');
+std::string labelUser(const std::string &line, const std::string &username);
 void GENERATE_LOGIN();
 void ENTER_ROOM();
 void SELECT_ROOM();
@@ -34,5 +38,7 @@ void AUTHENTICATION();
 void SET_UP_CONNECTION();
 void RESET_SOCKET();
 void IP_CONFIG();
+void LOAD_HISTORY_CHAT(std::string &chatDatabase);
+void REQUEST_TO_SERVER(std::string &chatDatabase, std::string roomName);
 
 void receiveMessages(SOCKET clientSocket);
