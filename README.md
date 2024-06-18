@@ -3,6 +3,7 @@
 ## Notice
 - The program only work with server and client in this branch. Do not use other client or server from other branch.
 - Run the program following the instruction below.
+- Use client.cpp and server.cpp, client_bk and server_bk just for backup.
 
 ## New feature update (18/06)
 - Store and load history chat for each room.
