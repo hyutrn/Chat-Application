@@ -38,7 +38,7 @@ void AUTHENTICATION();
 void SET_UP_CONNECTION();
 void RESET_SOCKET();
 void IP_CONFIG();
-void LOAD_HISTORY_CHAT(std::string &chatDatabase);
+void LOAD_HISTORY_CHAT(std::string &chatDatabase, std::string &username);
 void REQUEST_TO_SERVER(std::string &chatDatabase, std::string roomName);
 
 void receiveMessages(SOCKET clientSocket);
