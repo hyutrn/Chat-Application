@@ -3,6 +3,7 @@
 #include <vector>
 #include <thread>
 #include <set>
+#include <regex> // Thêm thư viện regex để kiểm tra mật khẩu
 #pragma comment(lib, "Ws2_32.lib")
 
 const char *IP_SERVER = "192.168.37.110";
@@ -20,7 +21,9 @@ struct client{
     std::string password = "";
 };
 
+bool isPasswordValid(const std::string& password);
 void GENERATE_LOGIN();
+void ENTER_ROOM();
 void SELECT_ROOM();
 void GENERATE_ROOM();
 void JOIN_CHAT(std::string roomName);
