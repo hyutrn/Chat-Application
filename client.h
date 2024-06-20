@@ -5,6 +5,8 @@
 #include <set>
 #include <regex> // Thêm thư viện regex để kiểm tra mật khẩu
 #include <fstream>
+#include <ctime>
+#include <cstdlib>
 #pragma comment(lib, "Ws2_32.lib")
 
 const char *IP_SERVER = "192.168.37.110";
@@ -22,6 +24,8 @@ struct client{
     std::string username = "";
     std::string password = "";
 };
+
+std::string keyRoom;
 
 bool isPasswordValid(const std::string& password);
 std::string createLabel(const std::string& roomName, size_t size = 50, char fillChar = '=');
@@ -41,5 +45,9 @@ void RESET_SOCKET();
 void IP_CONFIG();
 void LOAD_HISTORY_CHAT(std::string &chatDatabase, std::string &username);
 void REQUEST_TO_SERVER(std::string &chatDatabase, std::string roomName);
-
+std::string SHOW_AVAILABLE_ROOM(const std::string &chatDatabase);
 void receiveMessages(SOCKET clientSocket);
+void PUBLIC_ROOM_CREATE();
+void PRIVATE_ROOM_CREATE();
+std::string encryptMessage(const std::string& plaintext, const std::string& key);
+std::string decryptMessage(const std::string& ciphertext, const std::string& key);
