@@ -38,6 +38,15 @@ struct Message
     std::string message;
 };
 std::set<std::string> roomAvailable;
+std::set<std::string> roomPrivateAllocate;
+
+// class ChatRoom {
+// public:
+//     std::string roomName;
+//     std::string roomKey;
+//     ChatRoom(const std::string& name, const std::string& key) : roomName(name), roomKey(key) {}
+// };
+std::unordered_map<std::string, std::string> roomPrivate;
 
 // List of user
 void listofUser(const std::string&message, SOCKET senderSocket, const std::string& username);
@@ -57,7 +66,7 @@ int CreateAccount(const std::string& username, const std::string& password);
 bool CheckAccount(const std::string& userName, const std::string password,  const std::string& fileName);
 bool CheckLogIn(const std::string& username, const std::string& password, const std::string& fileName);
 Account CheckMessage(const std::string& message);
-
+std::string generateKey();
 // Broadcast message
 void BroadcastMessage(const std::string& message, SOCKET senderSocket, const std::string& username);
 
