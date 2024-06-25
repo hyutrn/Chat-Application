@@ -60,6 +60,27 @@ int getTerminalHeight()
 	return csbi.dwSize.Y;
 }
 
+std::string getTextElementBox(std::string text)
+{
+    std::string roomName;
+	system("cls");
+	setColor(7);
+	hideCursor(false);
+	int width = text.length() + 25;
+	int height = 5;
+	int top = 7;
+	std::string menuLabel = "[NOTIFICATION]";
+	gotoXY(centerWindow(menuLabel.length() - 1), 5);
+	std::cout << menuLabel;
+	int left = centerWindow(width);
+	int leftBox = centerBox(width, text.length() + 7);
+	drawRectangle(left, top, width, height);
+	gotoXY(leftBox, top + 2);
+	std::cout << text << ": ";
+	std::cin >> roomName;
+	return roomName;
+}
+
 int centerWindow(int width)
 {
     int terminalWidth = (getTerminalWidth() / 2);
